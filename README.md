@@ -265,7 +265,7 @@ Workers can access the platform through any web browser.
 
 ### Database
 
-- MongoDB
+- mySQL
 
 ---
 
