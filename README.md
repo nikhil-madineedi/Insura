@@ -1,14 +1,14 @@
-# Insura – AI Powered Income Protection for Gig Workers
+# INSURA – AI Powered Income Protection for Gig Workers
 
-Insura is an AI-powered insurance platform designed to protect delivery partners from **income loss caused by external disruptions** such as heavy rain, floods, or city shutdowns.
+Insura is an AI-powered parametric insurance platform designed to protect delivery partners from income loss caused by external disruptions such as heavy rain, floods, heatwaves, or city shutdowns.
 
-Delivery partners depend on daily orders for income. When disruptions occur, they lose working hours and earnings. Insura provides a **simple weekly protection plan that automatically compensates workers when such disruptions happen.**
+Delivery partners depend entirely on daily orders for income. When disruptions occur, they lose working hours and earnings. Insura provides a simple weekly protection plan that automatically compensates workers when such disruptions happen.
 
-The platform uses **AI-based risk analysis and parametric insurance triggers** to provide fast and transparent payouts.
+The platform uses AI-based risk analysis, real-time data monitoring, and parametric triggers to ensure fast, transparent, and reliable payouts.
 
 ---
 
-# Problem Statement
+## Problem Statement
 
 India’s gig economy includes millions of delivery partners working for platforms such as:
 
@@ -26,16 +26,15 @@ Examples include:
 - Floods  
 - Heatwaves  
 - Curfews  
-- Government shutdowns  
+- Government shutdowns (Bandh)  
 
-When such events occur, workers lose income immediately and currently **have no reliable protection for lost earnings.**
+When such events occur, workers lose income immediately and currently have no reliable protection or financial safety net.
 
 ---
 
-# Persona
+## Persona
 
 ### Ravi – Delivery Partner
-
 - Age: 27  
 - Platform: Swiggy  
 - City: Hyderabad  
@@ -43,240 +42,223 @@ When such events occur, workers lose income immediately and currently **have no 
 
 ### Scenario
 
-1. Ravi registers on the Insura platform.
-2. The system analyzes environmental risks in his city.
-3. AI recommends an insurance plan suitable for his location.
-4. Ravi subscribes to the weekly protection plan.
-5. Heavy rain stops deliveries in the city.
-6. The system detects the disruption using weather data.
-7. Ravi automatically receives a compensation payout.
+- Ravi registers on the Insura platform  
+- The system analyzes environmental and social risks in his city  
+- AI recommends a suitable insurance plan  
+- Ravi subscribes to a weekly protection plan  
+- Heavy rain disrupts deliveries  
+- The system detects disruption using real-time data  
+- Ravi automatically receives compensation  
+
+This reflects the real challenges faced by gig workers, where even a few days without work creates financial stress.
 
 ---
 
-# Our Solution
+## Our Solution
 
-Insura provides **parametric income protection insurance** for gig workers.
+Insura provides parametric income protection insurance for gig workers.
 
-Instead of traditional claim processes, the platform uses **data-driven triggers** to detect disruptions.
+Instead of traditional claim-based insurance, the platform uses real-time data and predefined thresholds to detect disruptions.
 
-When a disruption crosses a predefined threshold, the system automatically triggers compensation for affected workers.
+When disruption conditions are met, compensation is automatically triggered without manual claims.
 
-Key features:
+### Key Features
 
-- AI-based plan recommendation
-- Weekly subscription model
-- Automatic payout triggers
-- Fraud detection
-- Manual claim verification if needed
+- AI-based risk scoring and plan recommendation  
+- Weekly subscription-based model  
+- Automatic payout triggers  
+- Real-time data monitoring (weather, alerts)  
+- Fraud detection with multi-layer verification  
+- Manual claim support for edge cases  
 
 ---
 
-# Weekly Premium Model
+## Weekly Premium Model
 
-The platform uses a **Parametric Insurance Model**.
-
-This means payouts are triggered automatically when predefined conditions are met.
+The platform uses a **Parametric Insurance Model**, where payouts are triggered automatically based on predefined conditions.
 
 ### Example Plans
 
-| Plan | Weekly Premium | Coverage |
-|-----|-----|-----|
-| Basic | ₹50 | ₹1000 payout |
-| Standard | ₹80 | ₹1500 payout |
-| Pro | ₹120 | ₹2500 payout |
+| Plan     | Weekly Premium | Daily Payout | Max Weekly Payout |
+|----------|--------------|-------------|------------------|
+| Basic    | ₹100         | ₹200        | ₹400             |
+| Standard | ₹200         | ₹400        | ₹800             |
 
-### AI-Based Personalized Pricing
+Additionally, risk-based plans are dynamically assigned:
 
-When a worker registers, the system analyzes **risk factors of their location**, such as:
-
-- rainfall frequency  
-- flood history  
-- temperature patterns  
-- disruption history  
-
-Based on this data, AI recommends a suitable plan.
-
-Example:
-
-AI Recommendation → **Standard Plan**
-
-However, workers can still choose any plan they prefer.
-
-The AI can also dynamically adjust:
-
-- weekly premium
-- payout coverage
-
-depending on the **risk level of the worker’s location.**
+| Risk Level | Premium | Daily Payout | Max Weekly |
+|------------|--------|-------------|------------|
+| Low        | ₹125   | ₹275        | ₹700       |
+| Medium     | ₹150   | ₹325        | ₹700       |
+| High       | ₹175   | ₹325        | ₹700       |
 
 ---
 
-# Application Workflow
+## AI-Based Personalized Pricing
 
-## 1. Worker Registration
+The system calculates disruption probability using environmental and social factors.
 
-The worker signs up by:
+### Risk Factors
 
-- entering phone number
-- selecting their city
-- optionally linking their delivery platform
+**Environmental Factors**
+- Rainfall  
+- Temperature  
+- Flood alerts  
+- Pollution  
 
-The system stores worker details and location data.
+**Social Factors**
+- Curfews  
+- Strikes  
+- Restrictions  
 
----
+### Probability Model
 
-## 2. AI Plan Recommendation
+- Environmental Risk = Average of environmental scores  
+- Social Risk = Average of social scores  
+- Final Probability =  
+  (0.7 × Environmental Risk) + (0.3 × Social Risk)
 
-After registration, the system performs **AI-based risk analysis** using historical environmental data.
-
-The AI recommends the best plan based on the worker’s city risk profile.
-
-Workers can either:
-
-- accept the AI recommended plan  
-- select their own plan manually
-
----
-
-# Monitoring Events
-
-The system continuously monitors real-world data sources such as:
-
-- weather APIs
-- disaster alerts
-- government notifications
-
-These data sources help detect events that may prevent workers from delivering orders.
+Based on this probability:
+- Risk level is assigned (Low / Medium / High)  
+- Pricing and payouts are adjusted dynamically  
 
 ---
 
-# Parametric Trigger System
+## Application Workflow
 
-The platform uses **parametric triggers** to detect disruptions.
+### 1. Worker Registration
+- Enter phone number  
+- Select city  
+- Link delivery platform (optional)  
 
-Example triggers:
+### 2. AI Risk Assessment
+- System fetches real-time and historical data  
+- Risk score is calculated  
+- Worker is assigned a risk category  
 
-| Event | Trigger |
-|------|------|
-Heavy Rain | Rainfall above threshold |
-Heatwave | Temperature above threshold |
-Flood Warning | Government flood alert |
-Curfew | Official shutdown announcement |
+### 3. Plan Selection
+- Worker selects a plan (AI-recommended or manual)  
+- Payment is completed  
+- Policy is activated  
 
-Once a threshold is crossed, the system automatically triggers compensation.
+### 4. Continuous Monitoring
+- System monitors:
+  - Weather APIs  
+  - Disaster alerts  
+  - Government notifications  
 
----
+### 5. Disruption Detection
+- Events are detected using parametric triggers  
 
-# Claim Processing
+### 6. Fraud Verification
+- Multi-layer validation ensures authenticity  
 
-Insura supports **two types of claims**.
-
-## Automatic Claims (AI Triggered)
-
-If disruption conditions are detected:
-
-1. System verifies event data.
-2. Affected workers are identified.
-3. Claims are automatically approved.
-4. Compensation is processed.
-
-This ensures **fast and transparent payouts**.
-
----
-
-## Manual Claims
-
-Sometimes automatic detection may miss an event.
-
-In such cases:
-
-1. Worker submits a manual claim.
-2. Admin or human verifier reviews the request.
-3. If approved, compensation is processed.
-
-This ensures:
-
-- fair handling of edge cases
-- reduced fraud
-- better reliability
+### 7. Instant Payout
+- Compensation is automatically credited  
 
 ---
 
-# AI in the System
+## Parametric Trigger System
 
-AI is used in several parts of the platform.
+The platform uses predefined thresholds to detect disruptions.
 
-## Risk Assessment
+| Event        | Trigger Condition |
+|-------------|-----------------|
+| Heavy Rain  | Rainfall above threshold |
+| Heatwave    | Temperature above threshold |
+| Flood       | Government flood alert |
+| Curfew      | Official announcement |
 
-AI analyzes environmental and disruption data to determine the risk level of each city.
-
-This helps recommend the best insurance plan for workers.
-
----
-
-## Dynamic Pricing
-
-Machine learning models can adjust:
-
-- weekly premium
-- coverage amount
-
-based on local disruption risk.
+Once triggered, payouts are automatically processed.
 
 ---
 
-## Fraud Detection
+## Claim Processing
 
-AI detects suspicious activity such as:
+### Automatic Claims (AI Triggered)
 
-- duplicate accounts
-- repeated unusual claims
-- abnormal claim patterns
+- System detects disruption  
+- Verifies event data  
+- Identifies affected workers  
+- Approves and processes payout  
 
-This helps prevent fraud in the system.
+### Manual Claims
+
+- Worker submits request  
+- Admin reviews claim  
+- Compensation is processed if valid  
+
+This ensures fairness and reduces false negatives.
 
 ---
 
-# Platform Choice
+## AI in the System
 
-The system is built as a **Web Application**.
+### Risk Assessment
+AI analyzes environmental and disruption data to assign risk levels.
+
+### Dynamic Pricing
+Premium and payouts are adjusted based on:
+- location risk  
+- historical patterns  
+
+### Fraud Detection
+
+The system prevents fraud using:
+
+- IP and GPS validation  
+- Device and sensor verification  
+- Behavioral analysis  
+- Detection of fraud rings and coordinated attacks  
+
+Claims are classified as:
+- Low Risk → Auto approved  
+- Medium Risk → Review  
+- High Risk → Investigation  
+
+---
+
+## Platform Choice
+
+The system is built as a web application.
 
 ### Advantages
 
-- Faster development
-- Accessible on all devices
-- No installation required
-- Easy deployment
-
-Workers can access the platform through any web browser.
+- Accessible across all devices  
+- No installation required  
+- Faster deployment  
+- Easy scalability  
 
 ---
 
-# Technology Stack
+## Technology Stack
 
 ### Frontend
-
-- React
-- Tailwind CSS
+- React  
+- CSS  
 
 ### Backend
-
-- Spring Boot (Java)
+- Spring Boot  
 
 ### Database
+- MySQL  
 
-- mySQL
+### Cloud & APIs
+- AWS (Lambda, API Gateway)  
+- OpenWeather API  
 
 ---
 
-# Project Vision
+## Project Vision
 
-Insura aims to create a **financial safety net for gig workers during unpredictable disruptions**.
+Insura aims to create a reliable financial safety net for gig workers.
 
 By combining:
-
 - AI-based risk analysis  
-- environmental data  
-- parametric insurance models  
+- Real-time environmental data  
+- Parametric insurance models  
+- Fraud-resistant systems  
 
-the platform enables **fast, transparent, and reliable income protection** for delivery workers in India's growing gig economy.
+the platform delivers fast, transparent, and scalable income protection for gig workers in India.
+
+---
