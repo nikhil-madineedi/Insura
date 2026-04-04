@@ -7,7 +7,7 @@ import { GlowOrb, RainParticle, InsuraLogo, Spinner } from "../components/Shared
 // ============================================================
 
 export default function LoginPage({ onLogin, onGoSignup }) {
-  const [form, setForm]       = useState({ email: "", password: "" });
+  const [form, setForm]       = useState({ email: "", password: "", role: "worker" });
   const [showPw, setShowPw]   = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
@@ -30,7 +30,8 @@ export default function LoginPage({ onLogin, onGoSignup }) {
     await new Promise(r => setTimeout(r, 1400));
     setLoading(false);
     const name = form.email.split("@")[0].replace(/[^a-zA-Z]/g, " ").trim() || "Rider";
-    onLogin({ name, email: form.email, plan: "medium" });
+    const role = form.role || "worker";
+    onLogin({ name, email: form.email, plan: role === "admin" ? "high" : "medium", role, workArea: role === "admin" ? "Mumbai" : "Vijayawada" });
   };
 
   return (
@@ -98,6 +99,28 @@ export default function LoginPage({ onLogin, onGoSignup }) {
           onFocus={e => e.target.style.borderColor = "#3B82F6"}
           onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
         />
+
+        <label style={{ ...labelStyle, marginTop: 18 }}>Access type</label>
+        <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
+          {[
+            { id: "worker", label: "Worker" },
+            { id: "admin",  label: "Admin" },
+          ].map(option => (
+            <button key={option.id} onClick={() => setForm(f => ({ ...f, role: option.id }))} style={{
+              flex: 1,
+              padding: "12px 14px",
+              borderRadius: 12,
+              border: "1px solid",
+              borderColor: form.role === option.id ? "#6366F1" : "rgba(255,255,255,0.12)",
+              background: form.role === option.id ? "rgba(99,102,241,0.18)" : "rgba(255,255,255,0.04)",
+              color: form.role === option.id ? "#E8EEFF" : "#8896C8",
+              cursor: "pointer",
+              fontFamily: "'DM Sans', sans-serif",
+            }}>
+              {option.label}
+            </button>
+          ))}
+        </div>
 
         {/* Password */}
         <label style={{ ...labelStyle, marginTop: 18 }}>Password</label>

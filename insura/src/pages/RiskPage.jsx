@@ -215,11 +215,15 @@ export default function RiskPage({ onNav }) {
 
   return (
     <div style={{ padding: "28px 24px", maxWidth: 620, margin: "0 auto" }}>
-      <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 24, fontWeight: 800, marginBottom: 6, animation: "fadeUp 0.5s ease" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+        <span style={{ color: "#3B82F6", fontSize: 16 }}>Phase 2</span>
+        <div style={{ height: 1, flex: 1, background: "rgba(255,255,255,0.08)" }} />
+      </div>
+      <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 26, fontWeight: 800, marginBottom: 8, animation: "fadeUp 0.5s ease" }}>
         AI Risk Assessment
       </h2>
       <p style={{ color: "#8896C8", fontSize: 14, marginBottom: 24, animation: "fadeUp 0.5s ease 0.05s both" }}>
-        4 questions to calculate your disruption risk score
+        4 questions to calculate your disruption risk score and match you to the best Insura plan.
       </p>
 
       {/* Progress bar */}

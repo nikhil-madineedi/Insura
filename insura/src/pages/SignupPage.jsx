@@ -20,9 +20,9 @@ export default function SignupPage({ onSignup, onGoLogin }) {
 
   const [form, setForm] = useState({
     // Step 1
-    name: "", email: "", phone: "", password: "", confirmPw: "",
+    role: "worker", name: "", email: "", phone: "", password: "", confirmPw: "",
     // Step 2
-    platform: "", workArea: "", vehicleType: "two-wheeler",
+    platform: "", workArea: "", vehicleType: "two-wheeler", adminTeam: "Operations",
     // Step 3
     plan: "medium",
   });
@@ -38,18 +38,24 @@ export default function SignupPage({ onSignup, onGoLogin }) {
   const validate = () => {
     const errs = {};
     if (step === 1) {
-      if (!form.name.trim())     errs.name = "Name is required";
-      if (!form.email.trim())    errs.email = "Email is required";
-      if (!form.phone.trim())    errs.phone = "Phone is required";
+      if (!form.role)           errs.role = "Select access type";
+      if (!form.name.trim())    errs.name = "Name is required";
+      if (!form.email.trim())   errs.email = "Email is required";
+      if (!form.phone.trim())   errs.phone = "Phone is required";
       if (form.password.length < 6) errs.password = "Min 6 characters";
       if (form.password !== form.confirmPw) errs.confirmPw = "Passwords don't match";
     }
     if (step === 2) {
-      if (!form.platform) errs.platform = "Select your gig platform";
-      if (!form.workArea) errs.workArea = "Select your work area";
+      if (form.role === "worker") {
+        if (!form.platform) errs.platform = "Select your gig platform";
+        if (!form.workArea) errs.workArea = "Select your work area";
+      } else {
+        if (!form.adminTeam) errs.adminTeam = "Choose your admin team";
+        if (!form.workArea) errs.workArea = "Select your admin region";
+      }
     }
     if (step === 3) {
-      if (!form.plan) errs.plan = "Please select a plan";
+      if (form.role === "worker" && !form.plan) errs.plan = "Please select a plan";
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -194,8 +200,30 @@ function Step1({ form, update, errors }) {
         Personal Details
       </h2>
       <p style={{ color: "#8896C8", fontSize: 14, marginBottom: 24 }}>
-        Create your Insura rider account
+        Create your Insura account and choose the right access type.
       </p>
+
+      <label style={lStyle}>Select account type</label>
+      <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
+        {[
+          { id: "worker", label: "Worker" },
+          { id: "admin",  label: "Admin" },
+        ].map(option => (
+          <button key={option.id} onClick={() => update("role", option.id)} style={{
+            flex: 1,
+            padding: "12px 14px",
+            borderRadius: 12,
+            border: "1px solid",
+            borderColor: form.role === option.id ? "#6366F1" : "rgba(255,255,255,0.12)",
+            background: form.role === option.id ? "rgba(99,102,241,0.18)" : "rgba(255,255,255,0.04)",
+            color: form.role === option.id ? "#E8EEFF" : "#8896C8",
+            cursor: "pointer",
+            fontFamily: "'DM Sans', sans-serif",
+          }}>
+            {option.label}
+          </button>
+        ))}
+      </div>
 
       <Field label="Full Name" error={errors.name}>
         <input value={form.name} onChange={e => update("name", e.target.value)}
@@ -243,91 +271,164 @@ function Step1({ form, update, errors }) {
 
 // ── Step 2: Work Details ───────────────────────────────────────
 function Step2({ form, update, errors }) {
+  const isAdmin = form.role === "admin";
+
   return (
     <div style={{ animation: "slideInRight 0.35s ease" }}>
       <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 22, fontWeight: 800, marginBottom: 6 }}>
-        Work Details
+        {isAdmin ? "Admin Details" : "Work Details"}
       </h2>
       <p style={{ color: "#8896C8", fontSize: 14, marginBottom: 24 }}>
-        Tell us where you work and which platform
+        {isAdmin ? "Enter your admin team and region." : "Tell us where you work and which platform."}
       </p>
 
-      {/* Platform */}
-      <label style={lStyle}>Gig Platform you work with</label>
-      {errors.platform && <span style={errStyle}>{errors.platform}</span>}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 20 }}>
-        {GIG_PLATFORMS.map(p => (
-          <button key={p.id} onClick={() => update("platform", p.id)} style={{
-            padding: "12px 8px", borderRadius: 12, border: "none", cursor: "pointer",
-            background: form.platform === p.id
-              ? `rgba(99,102,241,0.18)` : "rgba(255,255,255,0.04)",
-            borderWidth: 1.5, borderStyle: "solid",
-            borderColor: form.platform === p.id ? "#6366F1" : "rgba(255,255,255,0.08)",
-            color: "#fff", display: "flex", flexDirection: "column",
-            alignItems: "center", gap: 5,
-            transition: "all 0.18s",
-          }}>
-            <span style={{ fontSize: 22 }}>{p.icon}</span>
-            <span style={{ fontSize: 12, fontWeight: 500, color: form.platform === p.id ? "#C4B5FD" : "#8896C8" }}>
-              {p.name}
-            </span>
-          </button>
-        ))}
-      </div>
+      {isAdmin ? (
+        <>
+          <label style={lStyle}>Admin team</label>
+          {errors.adminTeam && <span style={errStyle}>{errors.adminTeam}</span>}
+          <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+            {["Operations", "Risk", "Partner Success"].map(team => (
+              <button key={team} onClick={() => update("adminTeam", team)} style={{
+                flex: 1, padding: "12px 14px", borderRadius: 12,
+                border: "1px solid",
+                borderColor: form.adminTeam === team ? "#6366F1" : "rgba(255,255,255,0.12)",
+                background: form.adminTeam === team ? "rgba(99,102,241,0.18)" : "rgba(255,255,255,0.04)",
+                color: form.adminTeam === team ? "#E8EEFF" : "#8896C8",
+                cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+              }}>
+                {team}
+              </button>
+            ))}
+          </div>
 
-      {/* Work Area */}
-      <label style={lStyle}>Primary Work Area</label>
-      {errors.workArea && <span style={errStyle}>{errors.workArea}</span>}
-      <select
-        value={form.workArea}
-        onChange={e => update("workArea", e.target.value)}
-        style={{
-          ...iStyle(errors.workArea),
-          appearance: "none",
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238896C8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "right 14px center",
-          paddingRight: 36,
-          cursor: "pointer",
-        }}
-      >
-        <option value="" style={{ background: "#0B1437" }}>Select your city / area</option>
-        {WORK_AREAS.map(a => (
-          <option key={a} value={a} style={{ background: "#0B1437" }}>{a}</option>
-        ))}
-      </select>
+          <label style={lStyle}>Admin region</label>
+          {errors.workArea && <span style={errStyle}>{errors.workArea}</span>}
+          <select
+            value={form.workArea}
+            onChange={e => update("workArea", e.target.value)}
+            style={{
+              ...iStyle(errors.workArea),
+              appearance: "none",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238896C8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 14px center",
+              paddingRight: 36,
+              cursor: "pointer",
+            }}
+          >
+            <option value="" style={{ background: "#0B1437" }}>Select administrative region</option>
+            {WORK_AREAS.map(a => (
+              <option key={a} value={a} style={{ background: "#0B1437" }}>{a}</option>
+            ))}
+          </select>
+        </>
+      ) : (
+        <>
+          <label style={lStyle}>Gig Platform you work with</label>
+          {errors.platform && <span style={errStyle}>{errors.platform}</span>}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 20 }}>
+            {GIG_PLATFORMS.map(p => (
+              <button key={p.id} onClick={() => update("platform", p.id)} style={{
+                padding: "12px 8px", borderRadius: 12, border: "none", cursor: "pointer",
+                background: form.platform === p.id
+                  ? `rgba(99,102,241,0.18)` : "rgba(255,255,255,0.04)",
+                borderWidth: 1.5, borderStyle: "solid",
+                borderColor: form.platform === p.id ? "#6366F1" : "rgba(255,255,255,0.08)",
+                color: "#fff", display: "flex", flexDirection: "column",
+                alignItems: "center", gap: 5,
+                transition: "all 0.18s",
+              }}>
+                <span style={{ fontSize: 22 }}>{p.icon}</span>
+                <span style={{ fontSize: 12, fontWeight: 500, color: form.platform === p.id ? "#C4B5FD" : "#8896C8" }}>
+                  {p.name}
+                </span>
+              </button>
+            ))}
+          </div>
 
-      {/* Vehicle */}
-      <label style={{ ...lStyle, marginTop: 20 }}>Vehicle Type</label>
-      <div style={{ display: "flex", gap: 10, marginTop: 2 }}>
-        {["two-wheeler", "four-wheeler", "bicycle"].map(v => (
-          <button key={v} onClick={() => update("vehicleType", v)} style={{
-            flex: 1, padding: "11px 10px", borderRadius: 11, border: "none",
-            cursor: "pointer",
-            background: form.vehicleType === v ? "rgba(99,102,241,0.18)" : "rgba(255,255,255,0.04)",
-            borderWidth: 1.5, borderStyle: "solid",
-            borderColor: form.vehicleType === v ? "#6366F1" : "rgba(255,255,255,0.08)",
-            color: form.vehicleType === v ? "#C4B5FD" : "#8896C8",
-            fontFamily: "'DM Sans',sans-serif", fontSize: 13, fontWeight: 500,
-            transition: "all 0.18s", textTransform: "capitalize",
-          }}>
-            {v === "two-wheeler" ? "🛵" : v === "four-wheeler" ? "🚗" : "🚲"} {v}
-          </button>
-        ))}
-      </div>
+          <label style={lStyle}>Primary Work Area</label>
+          {errors.workArea && <span style={errStyle}>{errors.workArea}</span>}
+          <select
+            value={form.workArea}
+            onChange={e => update("workArea", e.target.value)}
+            style={{
+              ...iStyle(errors.workArea),
+              appearance: "none",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238896C8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 14px center",
+              paddingRight: 36,
+              cursor: "pointer",
+            }}
+          >
+            <option value="" style={{ background: "#0B1437" }}>Select your city / area</option>
+            {WORK_AREAS.map(a => (
+              <option key={a} value={a} style={{ background: "#0B1437" }}>{a}</option>
+            ))}
+          </select>
+
+          <label style={{ ...lStyle, marginTop: 20 }}>Vehicle Type</label>
+          <div style={{ display: "flex", gap: 10, marginTop: 2 }}>
+            {["two-wheeler", "four-wheeler", "bicycle"].map(v => (
+              <button key={v} onClick={() => update("vehicleType", v)} style={{
+                flex: 1, padding: "11px 10px", borderRadius: 11, border: "none",
+                cursor: "pointer",
+                background: form.vehicleType === v ? "rgba(99,102,241,0.18)" : "rgba(255,255,255,0.04)",
+                borderWidth: 1.5, borderStyle: "solid",
+                borderColor: form.vehicleType === v ? "#6366F1" : "rgba(255,255,255,0.08)",
+                color: form.vehicleType === v ? "#C4B5FD" : "#8896C8",
+                fontFamily: "'DM Sans',sans-serif", fontSize: 13, fontWeight: 500,
+                transition: "all 0.18s", textTransform: "capitalize",
+              }}>
+                {v === "two-wheeler" ? "🛵" : v === "four-wheeler" ? "🚗" : "🚲"} {v}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
 // ── Step 3: Plan Selection ─────────────────────────────────────
 function Step3({ form, update, errors, planType, setPlanType, allPlans }) {
+  const isAdmin = form.role === "admin";
+
+  if (isAdmin) {
+    return (
+      <div style={{ animation: "slideInRight 0.35s ease" }}>
+        <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 22, fontWeight: 800, marginBottom: 6 }}>
+          Admin Access
+        </h2>
+        <p style={{ color: "#8896C8", fontSize: 14, marginBottom: 24 }}>
+          Your admin account will have access to the policy and claims console.
+        </p>
+        <div style={{ padding: 22, borderRadius: 20, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ marginBottom: 18, color: "#E8EEFF", fontWeight: 700 }}>Admin console access granted</div>
+          <div style={{ display: "grid", gap: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}><span>Role</span><strong>Administrator</strong></div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}><span>Team</span><strong>{form.adminTeam}</strong></div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}><span>Region</span><strong>{form.workArea || "Not set"}</strong></div>
+          </div>
+        </div>
+        <div style={{
+          marginTop: 20, padding: "14px 18px", borderRadius: 12,
+          background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)",
+          fontSize: 13, color: "#8896C8", lineHeight: 1.6,
+        }}>
+          💡 Admin users manage riders, monitor claims and review trigger response settings.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ animation: "slideInRight 0.35s ease" }}>
       <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 22, fontWeight: 800, marginBottom: 6 }}>
         Choose Your Plan
       </h2>
       <p style={{ color: "#8896C8", fontSize: 14, marginBottom: 20 }}>
-        Select weekly income protection that fits your needs
+        Select weekly income protection that fits your needs.
       </p>
 
       {/* Plan type toggle */}
@@ -337,7 +438,7 @@ function Step3({ form, update, errors, planType, setPlanType, allPlans }) {
         width: "fit-content",
       }}>
         {[
-          { id: "risk",  label: "AI Risk-Based Plans" },
+          { id: "risk", label: "AI Risk-Based Plans" },
           { id: "fixed", label: "Fixed Plans" },
         ].map(t => (
           <button key={t.id} onClick={() => { setPlanType(t.id); update("plan", ""); }} style={{
@@ -354,18 +455,12 @@ function Step3({ form, update, errors, planType, setPlanType, allPlans }) {
         <div style={{ ...errStyle, display: "block", marginBottom: 16 }}>{errors.plan}</div>
       )}
 
-      {/* Plan cards grid */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: `repeat(${allPlans.length}, 1fr)`,
-        gap: 16,
-      }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${allPlans.length}, 1fr)`, gap: 16 }}>
         {allPlans.map(p => (
           <PlanCard key={p.id} plan={p} selected={form.plan} onSelect={id => update("plan", id)} />
         ))}
       </div>
 
-      {/* Pricing info banner */}
       <div style={{
         marginTop: 20, padding: "14px 18px", borderRadius: 12,
         background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)",
@@ -380,7 +475,9 @@ function Step3({ form, update, errors, planType, setPlanType, allPlans }) {
 // ── Success / Confirmation ─────────────────────────────────────
 function SuccessScreen({ form, allPlans, onLogin }) {
   const allP = [...(allPlans || []), ...RISK_PLANS, ...FIXED_PLANS];
-  const chosen = allP.find(p => p.id === form.plan) || RISK_PLANS[1];
+  const chosen = form.role === "admin"
+    ? { id: "admin", name: "Admin Access", weekly: 0, daily: 0, color: "#6366F1" }
+    : allP.find(p => p.id === form.plan) || RISK_PLANS[1];
   const platform = GIG_PLATFORMS.find(p => p.id === form.platform);
 
   return (
@@ -409,13 +506,22 @@ function SuccessScreen({ form, allPlans, onLogin }) {
         background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
         borderRadius: 14, padding: "18px 20px", marginBottom: 28, textAlign: "left",
       }}>
-        {[
-          ["Rider",    form.name],
-          ["Platform", `${platform?.icon || ""} ${platform?.name || form.platform}`],
-          ["Area",     form.workArea],
-          ["Plan",     `${chosen.name} — ₹${chosen.weekly}/week`],
-          ["Daily pay","₹" + chosen.daily + " (on disruption)"],
-        ].map(([k, v]) => (
+        {(
+          form.role === "admin"
+            ? [
+                ["Admin", form.name],
+                ["Team", form.adminTeam],
+                ["Region", form.workArea || "Not set"],
+                ["Access", chosen.name],
+              ]
+            : [
+                ["Rider",    form.name],
+                ["Platform", `${platform?.icon || ""} ${platform?.name || form.platform}`],
+                ["Area",     form.workArea],
+                ["Plan",     `${chosen.name} — ₹${chosen.weekly}/week`],
+                ["Daily pay","₹" + chosen.daily + " (on disruption)"],
+              ]
+        ).map(([k, v]) => (
           <div key={k} style={{
             display: "flex", justifyContent: "space-between",
             padding: "7px 0", borderBottom: "1px solid rgba(255,255,255,0.05)",

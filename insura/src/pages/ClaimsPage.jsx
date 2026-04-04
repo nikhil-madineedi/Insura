@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { submitClaim, detectDisruptionEvents, fetchWeatherData, createAutoClaimFromEvent } from "../services/apiService";
+import { RISK_PLANS } from "../utils/data";
 
 // ============================================================
 //  ClaimsPage.jsx
-//  View active + settled claims; file new claim
+//  Phase 2: Automated claim triggers + seamless zero-touch process
+//  View active + settled claims; auto-file claims from disruption events
 // ============================================================
 
 const MOCK_CLAIMS = {
@@ -30,8 +33,43 @@ export default function ClaimsPage() {
   const [showForm, setShowForm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [newClaim, setNewClaim]   = useState({ type: "", desc: "", date: "" });
+  const [loading, setLoading] = useState(false);
+  const [monitoringData, setMonitoringData] = useState(null);
+  const [claimProcessing, setClaimProcessing] = useState(false);
+  const [lastAutoTrigger, setLastAutoTrigger] = useState(null);
 
   const claims = MOCK_CLAIMS[tab];
+  const userPlan = RISK_PLANS[1]; // Medium Risk plan
+  const userLocation = "Vijayawada";
+
+  // Fetch real-time monitoring data for triggering auto-claims (Phase 2)
+  useEffect(() => {
+    const fetchMonitoring = async () => {
+      setLoading(true);
+      try {
+        const weather = await fetchWeatherData(userLocation);
+        const events = detectDisruptionEvents(weather);
+        setMonitoringData({ weather, events, riskLevel: events.length > 0 ? "HIGH" : "LOW" });
+      } catch (err) {
+        console.log("Monitoring update failed", err);
+      }
+      setLoading(false);
+    };
+    fetchMonitoring();
+  }, []);
+
+  // Simulate auto-claim trigger from detected disruption (Phase 2)
+  const handleAutoTriggerClaim = async (event) => {
+    setClaimProcessing(true);
+    const autoClaim = createAutoClaimFromEvent(event, userPlan);
+    try {
+      const result = await submitClaim("POL-123456", autoClaim);
+      setLastAutoTrigger({ event, result });
+    } catch (err) {
+      console.log("Auto-claim failed", err);
+    }
+    setClaimProcessing(false);
+  };
 
   const handleSubmit = async () => {
     setSubmitted(true);
@@ -39,14 +77,20 @@ export default function ClaimsPage() {
   };
 
   return (
-    <div style={{ padding: "28px 24px", maxWidth: 760, margin: "0 auto" }}>
+    <div style={{ padding: "28px 24px", maxWidth: 960, margin: "0 auto" }}>
+      {/* Phase 2 Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, animation: "fadeUp 0.5s ease" }}>
+        <span style={{ color: "#8B5CF6", fontSize: 16, fontWeight: 700 }}>Phase 2</span>
+        <div style={{ height: 1, flex: 1, background: "rgba(255,255,255,0.08)" }} />
+      </div>
+
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 14 }}>
         <div style={{ animation: "fadeUp 0.5s ease" }}>
           <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 26, fontWeight: 800, letterSpacing: -0.3, marginBottom: 5 }}>
             Claims Center
           </h2>
-          <p style={{ color: "#8896C8", fontSize: 14 }}>Track auto-triggered and manual claims</p>
+          <p style={{ color: "#8896C8", fontSize: 14 }}>Seamless zero-touch auto-claims & real-time disruption triggers</p>
         </div>
         <button onClick={() => setShowForm(true)} style={{
           padding: "11px 20px", borderRadius: 11, border: "none",
@@ -78,6 +122,74 @@ export default function ClaimsPage() {
           </div>
         ))}
       </div>
+
+      {/* Live Disruption Monitoring (Phase 2) */}
+      {monitoringData && monitoringData.events && monitoringData.events.length > 0 && (
+        <div style={{
+          background: "linear-gradient(135deg, rgba(249,115,22,0.12), rgba(244,63,94,0.08))",
+          border: "1px solid rgba(249,115,22,0.3)",
+          borderRadius: 16, padding: "20px 22px",
+          marginBottom: 24, animation: "fadeUp 0.5s ease 0.12s both",
+        }}>
+          <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: 15, fontWeight: 700, marginBottom: 14 }}>
+            ⚡ Active Disruptions Detected (Real-Time API)
+          </h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
+            {monitoringData.events.map((event, i) => (
+              <div key={i} style={{
+                padding: "14px 16px", borderRadius: 12,
+                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                  <span style={{ fontSize: 24 }}>{event.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{event.label}</div>
+                    <div style={{ fontSize: 12, color: "#8896C8" }}>{event.threshold}</div>
+                  </div>
+                  <button onClick={() => handleAutoTriggerClaim(event)} disabled={claimProcessing} style={{
+                    padding: "8px 14px", borderRadius: 8, border: "none",
+                    background: "linear-gradient(135deg, #F97316, #F43F5E)",
+                    color: "#fff", fontSize: 12, fontWeight: 700, cursor: claimProcessing ? "not-allowed" : "pointer",
+                  }}>
+                    {claimProcessing ? "Filing..." : "Auto-File"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Auto-Trigger Result */}
+      {lastAutoTrigger && (
+        <div style={{
+          background: lastAutoTrigger.result.status === "APPROVED" ? "rgba(16,185,129,0.1)" : "rgba(59,130,246,0.1)",
+          border: lastAutoTrigger.result.status === "APPROVED" ? "1px solid rgba(16,185,129,0.3)" : "1px solid rgba(59,130,246,0.3)",
+          borderRadius: 16, padding: "20px 22px",
+          marginBottom: 24, animation: "countUp 0.5s",
+        }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+            <span style={{ fontSize: 32 }}>{lastAutoTrigger.event.icon}</span>
+            <div style={{ flex: 1 }}>
+              <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: 16, fontWeight: 700, marginBottom: 8, color: lastAutoTrigger.result.status === "APPROVED" ? "#10B981" : "#3B82F6" }}>
+                {lastAutoTrigger.result.status === "APPROVED" ? "✓ Claim Auto-Approved" : "⏳ Claim Under Review"}
+              </h3>
+              <p style={{ color: "#8896C8", fontSize: 14, marginBottom: 12, lineHeight: 1.5 }}>
+                Event: <strong>{lastAutoTrigger.event.label}</strong> · Amount: <strong>₹{lastAutoTrigger.result.estimatedPayout}</strong> · Status: <strong>{lastAutoTrigger.result.approvalTime}</strong>
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8 }}>
+                {lastAutoTrigger.result.verificationLayers.map((layer, i) => (
+                  <div key={i} style={{
+                    padding: "8px 12px", borderRadius: 8,
+                    background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)",
+                    fontSize: 12, color: "#10B981",
+                  }}>✓ {layer.layer}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div style={{

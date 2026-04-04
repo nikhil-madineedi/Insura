@@ -47,7 +47,7 @@ const PHASES = [
   },
 ];
 
-export default function WorkflowPage() {
+export default function WorkflowPage({ onNav }) {
   const [active, setActive] = useState(null);
 
   const toggle = (key) => setActive(a => a === key ? null : key);
@@ -144,6 +144,28 @@ export default function WorkflowPage() {
           </div>
         ))}
       </div>
+
+      {/* Phase 2 CTA */}
+      {onNav && (
+        <div style={{
+          marginTop: 22, marginBottom: 20, padding: "20px 22px", borderRadius: 16,
+          background: "rgba(59,130,246,0.14)", border: "1px solid rgba(59,130,246,0.24)",
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18,
+          animation: "fadeUp 0.5s ease 0.45s both",
+        }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>Phase 2 — AI Risk Calculation</div>
+            <p style={{ margin: 0, fontSize: 13, color: "#D1D9FF" }}>
+              Start the interactive AI risk assessment that determines your risk score and recommended plan.
+            </p>
+          </div>
+          <button onClick={() => onNav("risk")} style={{
+            padding: "12px 20px", borderRadius: 12, border: "none",
+            background: "linear-gradient(135deg, #3B82F6, #8B5CF6)", color: "#fff",
+            fontWeight: 700, cursor: "pointer",
+          }}>Launch Risk Assessment</button>
+        </div>
+      )}
 
       {/* Anti-fraud section */}
       <div style={{

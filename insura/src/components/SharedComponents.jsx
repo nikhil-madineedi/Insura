@@ -74,10 +74,19 @@ const NAV_ITEMS = [
   { id: "claims",    icon: "📋",  label: "Claims" },
   { id: "workflow",  icon: "🔄",  label: "Workflow" },
   { id: "pricing",   icon: "💰",  label: "Pricing" },
+  { id: "policy",    icon: "📜",  label: "Policy" },
 ];
 
-export function Sidebar({ activeTab, onNav, user, onLogout }) {
-  const [open, setOpen] = useState(true);
+export function Sidebar({ activeTab, onNav, user, onLogout, open = true, onToggle = () => {}, navItems }) {
+  const items = navItems || [
+    { id: "dashboard", icon: "⊞",  label: "Dashboard" },
+    { id: "plans",     icon: "🛡",  label: "Plans" },
+    { id: "risk",      icon: "🧠",  label: "Risk AI" },
+    { id: "claims",    icon: "📋",  label: "Claims" },
+    { id: "workflow",  icon: "🔄",  label: "Workflow" },
+    { id: "pricing",   icon: "💰",  label: "Pricing" },
+    { id: "policy",    icon: "📜",  label: "Policy" },
+  ];
 
   return (
     <div style={{
@@ -112,7 +121,7 @@ export function Sidebar({ activeTab, onNav, user, onLogout }) {
           </div>
         )}
         {open && (
-          <button onClick={() => setOpen(false)} style={{
+          <button onClick={() => onToggle(false)} style={{
             background: "none", border: "none", color: "#8896C8",
             fontSize: 18, cursor: "pointer", padding: 0,
           }}>‹</button>
@@ -121,7 +130,7 @@ export function Sidebar({ activeTab, onNav, user, onLogout }) {
 
       {/* Toggle when closed */}
       {!open && (
-        <button onClick={() => setOpen(true)} style={{
+        <button onClick={() => onToggle(true)} style={{
           background: "none", border: "none", color: "#8896C8",
           fontSize: 16, cursor: "pointer", padding: "10px 0",
           textAlign: "center",

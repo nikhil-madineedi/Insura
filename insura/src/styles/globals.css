@@ -130,6 +130,7 @@ input, select, textarea {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 16px;
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
 }
 

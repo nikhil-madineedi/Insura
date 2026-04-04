@@ -1,12 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import LoginPage    from "./pages/LoginPage";
 import SignupPage   from "./pages/SignupPage";
 import DashboardPage from "./pages/DashboardPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
+import OverviewPage from "./pages/OverviewPage";
 import PlansPage    from "./pages/PlansPage";
 import RiskPage     from "./pages/RiskPage";
 import ClaimsPage   from "./pages/ClaimsPage";
 import WorkflowPage from "./pages/WorkflowPage";
 import PricingPage  from "./pages/PricingPage";
+import PolicyManagementPage from "./pages/PolicyManagementPage";
 import { Sidebar, Topbar } from "./components/SharedComponents";
 
 // ============================================================
@@ -14,97 +17,96 @@ import { Sidebar, Topbar } from "./components/SharedComponents";
 //  Routes: login / signup / app (dashboard + inner pages)
 // ============================================================
 
-// Inject global CSS once
-const GLOBAL_STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --navy: #060E28; --deep: #0B1437; --mid: #1A2E6E;
-    --accent: #3B82F6; --accent2: #6366F1; --gold: #F59E0B;
-    --green: #10B981; --coral: #F43F5E; --purple: #8B5CF6;
-    --orange: #F97316; --text: #E8EEFF; --muted: #8896C8;
-    --border: rgba(255,255,255,0.08); --glass: rgba(255,255,255,0.05);
-    --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
-  }
-  html { scroll-behavior: smooth; }
-  body { font-family: 'DM Sans', sans-serif; background: #060E28; color: #E8EEFF;
-    overflow-x: hidden; -webkit-font-smoothing: antialiased; }
-  h1,h2,h3,h4,h5,h6 { font-family: 'Syne', sans-serif; }
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: #060E28; }
-  ::-webkit-scrollbar-thumb { background: #1A2E6E; border-radius: 4px; }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-  @keyframes slideInRight { from{opacity:0;transform:translateX(36px)} to{opacity:1;transform:translateX(0)} }
-  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-  @keyframes spin { to{transform:rotate(360deg)} }
-  @keyframes pulse-ring { 0%{transform:scale(1);opacity:.6} 100%{transform:scale(1.6);opacity:0} }
-  @keyframes rain { 0%{transform:translateY(-10px);opacity:0} 10%{opacity:.6} 90%{opacity:.35} 100%{transform:translateY(70px) translateX(-8px);opacity:0} }
-  @keyframes countUp { from{opacity:0;transform:scale(.82)} to{opacity:1;transform:scale(1)} }
-`;
+const WORKER_NAV = [
+  { id: "overview", icon: "📘", label: "Overview" },
+  { id: "dashboard", icon: "📊", label: "Dashboard" },
+  { id: "plans", icon: "🛡", label: "Insurance Plans" },
+  { id: "risk", icon: "🧠", label: "AI Risk" },
+  { id: "claims", icon: "📋", label: "Claims" },
+  { id: "workflow", icon: "🔄", label: "Workflow" },
+  { id: "pricing", icon: "💰", label: "Pricing" },
+  { id: "policy", icon: "📜", label: "Policy Management" },
+];
 
-function injectStyles() {
-  if (document.getElementById("insura-global")) return;
-  const el = document.createElement("style");
-  el.id = "insura-global";
-  el.textContent = GLOBAL_STYLES;
-  document.head.appendChild(el);
-}
+const ADMIN_NAV = [
+  { id: "overview", icon: "📘", label: "Overview" },
+  { id: "dashboard", icon: "🧑‍💼", label: "Admin Dashboard" },
+  { id: "claims", icon: "📋", label: "Claims" },
+  { id: "policy", icon: "📜", label: "Policies" },
+  { id: "workflow", icon: "🔎", label: "Monitoring" },
+  { id: "pricing", icon: "💰", label: "Pricing" },
+  { id: "plans", icon: "🛡", label: "Plans" },
+];
 
-const NAV_LABELS = {
-  dashboard: "Dashboard",
-  plans:     "Insurance Plans",
-  risk:      "AI Risk Assessment",
-  claims:    "Claims Center",
-  workflow:  "Application Workflow",
-  pricing:   "Pricing Model",
+const PAGE_COMPONENTS = {
+  overview: ({ user, onNav }) => <OverviewPage user={user} onNav={onNav} />,
+  dashboard: ({ user, onNav }) => user?.role === "admin"
+    ? <AdminDashboardPage user={user} onNav={onNav} />
+    : <DashboardPage user={user} onNav={onNav} />,
+  plans: ({ user }) => <PlansPage user={user} />,
+  risk: ({ user }) => <RiskPage user={user} />,
+  claims: ({ user }) => <ClaimsPage user={user} />,
+  workflow: ({ user }) => <WorkflowPage user={user} />,
+  pricing: ({ user }) => <PricingPage user={user} />,
+  policy: ({ user }) => <PolicyManagementPage user={user} />,
 };
 
 export default function App() {
-  const [screen, setScreen] = useState("login"); // "login" | "signup" | "app"
-  const [tab,    setTab]    = useState("dashboard");
-  const [user,   setUser]   = useState(null);
+  const [authMode, setAuthMode] = useState("login");
+  const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Inject global styles on mount
-  useEffect(() => { injectStyles(); }, []);
-
-  const handleLogin  = (u) => { setUser(u);  setTab("dashboard"); setScreen("app"); };
-  const handleSignup = (u) => { setUser(u);  setTab("dashboard"); setScreen("app"); };
-  const handleLogout = ()  => { setUser(null); setScreen("login"); setTab("dashboard"); };
-
-  // ── Auth screens ─────────────────────────────────────────
-  if (screen === "login") {
-    return <LoginPage onLogin={handleLogin} onGoSignup={() => setScreen("signup")} />;
-  }
-  if (screen === "signup") {
-    return <SignupPage onSignup={handleSignup} onGoLogin={() => setScreen("login")} />;
-  }
-
-  // ── App shell ────────────────────────────────────────────
-  const screenMap = {
-    dashboard: <DashboardPage user={user} onNav={setTab} />,
-    plans:     <PlansPage user={user} />,
-    risk:      <RiskPage onNav={setTab} />,
-    claims:    <ClaimsPage />,
-    workflow:  <WorkflowPage />,
-    pricing:   <PricingPage />,
+  const handleLogin = (userData) => {
+    setUser(userData);
+    setActiveTab("dashboard");
+    setAuthMode("login");
   };
+
+  const handleLogout = () => {
+    setUser(null);
+    setAuthMode("login");
+    setActiveTab("overview");
+  };
+
+  const navItems = user?.role === "admin" ? ADMIN_NAV : WORKER_NAV;
+  const currentPage = PAGE_COMPONENTS[activeTab] || (() => (
+    <div style={{ color: "#E8EEFF", padding: 24, borderRadius: 18, background: "rgba(255,255,255,0.04)" }}>
+      <h2 style={{ marginBottom: 14 }}>Page not available</h2>
+      <p>Please select a valid page from the sidebar.</p>
+    </div>
+  ));
+
+  if (!user) {
+    return authMode === "signup"
+      ? <SignupPage onSignup={handleLogin} onGoLogin={() => setAuthMode("login")} />
+      : <LoginPage onLogin={handleLogin} onGoSignup={() => setAuthMode("signup")} />;
+  }
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#060E28" }}>
-      <Sidebar activeTab={tab} onNav={setTab} user={user} onLogout={handleLogout} />
+      <Sidebar
+        activeTab={activeTab}
+        onNav={setActiveTab}
+        user={user}
+        onLogout={handleLogout}
+        open={sidebarOpen}
+        onToggle={setSidebarOpen}
+        navItems={navItems}
+      />
 
-      {/* Dynamic margin matches sidebar width via CSS transition */}
       <div style={{
         flex: 1,
-        marginLeft: 72, // sidebar collapsed fallback; sidebar manages its own width
+        marginLeft: sidebarOpen ? 220 : 72,
+        padding: "24px 28px",
+        transition: "margin-left 0.28s ease",
         minHeight: "100vh",
-        background: "linear-gradient(155deg, #030A1E 0%, #060E28 50%, #0B1437 100%)",
-        transition: "margin-left 0.28s cubic-bezier(.4,0,.2,1)",
+        boxSizing: "border-box",
       }}>
-        <Topbar title={NAV_LABELS[tab] || "Insura"} user={user} />
-        <div key={tab} style={{ animation: "fadeUp 0.38s ease" }}>
-          {screenMap[tab]}
+        <Topbar title={navItems.find(item => item.id === activeTab)?.label || "Insura"} user={user} />
+
+        <div style={{ paddingTop: 18, maxWidth: 1440, margin: "0 auto" }}>
+          {currentPage({ user, onNav: setActiveTab })}
         </div>
       </div>
     </div>

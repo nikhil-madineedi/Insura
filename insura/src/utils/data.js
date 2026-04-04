@@ -135,6 +135,24 @@ export const RAINFALL_SCORES = [
   { range: "50+ mm/hr",   score: 0.7 },
 ];
 
+export const MOCK_RISK_FACTORS = {
+  historicalDisruptionRate: 0.62,
+  seasonalWeatherRisk: 0.72,
+  trustScore: 0.85,
+  peakHoursPercentage: 0.55,
+};
+
+export function calculateDynamicPremiumAdjustment(riskFactors) {
+  let adjustment = 1.0;
+  adjustment *= (0.8 + riskFactors.historicalDisruptionRate * 0.5);
+  adjustment *= (0.9 + riskFactors.seasonalWeatherRisk * 0.3);
+  adjustment *= (0.85 + riskFactors.trustScore * 0.15);
+  if (riskFactors.peakHoursPercentage > 0.6) {
+    adjustment *= 1.1;
+  }
+  return Math.max(0.7, Math.min(1.35, adjustment));
+}
+
 // ── Risk Calculation (Environmental 70% + Social 30%) ─────────
 export function calculateRiskProbability(envScores, socialScores) {
   const envAvg = envScores.length
